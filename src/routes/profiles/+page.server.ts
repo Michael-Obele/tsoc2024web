@@ -18,7 +18,7 @@ export async function load() {
       await seed()
       const { rows: names } = await db.query('SELECT * FROM names')
       return {
-        users: names
+        names: names
       }
     } 
 }
@@ -110,3 +110,6 @@ export const actions = {
     return { success: true };
 	}
 };
+
+
+
