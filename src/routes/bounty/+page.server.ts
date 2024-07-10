@@ -24,7 +24,8 @@ export const actions = {
 
     const deployTx = await instance.deploy(data.get("bounty"));
 
-    console.log("Smart lock deployed : https://whatsonchain.com/tx/"+deployTx.id);
+    console.log(
+        'Smart lock deployed : https://whatsonchain.com/tx/' + deployTx.id);
     
     return ({
         success:true,
