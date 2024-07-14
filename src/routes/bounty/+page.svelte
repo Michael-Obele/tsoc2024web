@@ -1,96 +1,120 @@
 <script>
-
-export let form;
+  export let form;
 </script>
 
-
-<div
-  class="mt-10 pt-10 w-full max-w-xl p-12 mx-auto rounded-lg shadow-xl dark:bg-white/10 bg-white/30 ring-1 ring-gray-900/5 backdrop-blur-lg"
->
-  <form method="POST" action="?/deploy">
-    <div class="flex flex-wrap -mx-3 mb-2">
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label
-          class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-          for="bounty"
-        >
-          bounty
-        </label>
-        <input
-          class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          id="bounty"
-          type="number"
-          placeholder="Enter bounty amount"
-          name="bounty"
-        />
-      </div>
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label
-          class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-          for="square"
-        >
-          Enter the number whose square root is on bounty
-        </label>
-        <input
-          class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          id="square"
-          type="number"
-          placeholder="Enter square number"
-          name="square"
-        />
-      </div>
-      <!-- <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+<div class="flex items-center">
+  <div
+    class="mx-auto mt-10 w-full max-w-xl rounded-lg bg-white/30 p-5 pt-10 shadow-xl ring-1 ring-gray-900/5 backdrop-blur-lg dark:bg-white/10"
+  >
+    <form method="POST" action="?/deploy">
+      <div class="-mx-3 mb-2">
+        <div class="mb-6 w-full px-3 md:mb-6">
+          <label
+            class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+            for="bounty"
+          >
+            Bounty
+          </label>
+          <input
+            class="block w-full appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+            id="bounty"
+            type="number"
+            placeholder="Enter bounty amount"
+            name="bounty"
+          />
+        </div>
+        <div class="mb-6 w-full px-3 md:mb-0">
+          <label
+            class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+            for="square"
+          >
+            Enter the square
+          </label>
+          <input
+            class="block w-full appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+            id="square"
+            type="number"
+            placeholder="Enter square number"
+            name="square"
+          />
+        </div>
+        <!-- <div class="mb-6 w-full px-3 md:mb-0">
+            <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700" for="grid-state">
               Email
             </label>
           </div> -->
-      <button
-        type="submit"
-        class="bg-yellow-500 hover:bg-blue-700 text-white font-bold mt-5 ml-2 px-2 rounded "
-      >
-        Deploy bounty
-      </button>
-    </div>
-  </form>
-  {#if form?.success}
-    <!-- this message is ephemeral; it exists because the page was rendered in
-		   response to a form submission. it will vanish if the user reloads -->
-    <p class="pt-2">Bounty was deployed successfully: <a href={'https://whatsonchain.com/tx/'+form?.tx}>Transaction Link!</a></p>
-  {/if}
-</div>
-
-
-<div
-  class="mt-10 pt-10 w-full max-w-xl p-12 mx-auto rounded-lg shadow-xl dark:bg-white/10 bg-white/30 ring-1 ring-gray-900/5 backdrop-blur-lg"
->
-  <form method="POST" action="?/deploy">
-    <div class="flex flex-wrap -mx-3 mb-2">
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label
-          class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-          for="root"
+        <button
+          type="submit"
+          class="ml-2 mt-5 rounded bg-green-500 px-2 py-2 font-bold text-white hover:bg-blue-700"
         >
-          root
-        </label>
-        <input
-          class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          id="root"
-          type="number"
-          placeholder="Enter root answer"
-          name="root"
-        />
+          Deploy bounty
+        </button>
       </div>
-      <button
-        type="submit"
-        class="bg-yellow-500 hover:bg-blue-700 text-white font-bold mt-5 ml-2 px-2 rounded "
-      >
-        Unlock bounty
-      </button>
-    </div>
-  </form>
-  {#if form?.success}
-    <!-- this message is ephemeral; it exists because the page was rendered in
+    </form>
+    {#if form?.deployed}
+      <!-- this message is ephemeral; it exists because the page was rendered in
 		   response to a form submission. it will vanish if the user reloads -->
-    <p class="pt-2">Bounty was unlocked successfully: <a href={'https://whatsonchain.com/tx/'+form?.tx}>Transaction Link!</a></p>
-  {/if}
+      <p class="pt-2 font-semibold text-green-400">
+        Bounty was deployed successfully: <a
+          class="font-semibold text-indigo-500 underline"
+          target="_blank"
+          href={`https://whatsonchain.com/tx/${form?.txid}`}>Trasaction Link</a
+        >!
+      </p>
+    {:else if form?.deployed === false}
+      <p>{form?.txid}</p>
+    {/if}
+  </div>
+
+  <!-- UNLOCK -->
+
+  <div
+    class="mx-auto mt-10 w-full max-w-xl rounded-lg bg-white/30 p-5 pt-10 shadow-xl ring-1 ring-gray-900/5 backdrop-blur-lg dark:bg-white/10"
+  >
+    <form method="POST" action="?/unlock">
+      <div class="-mx-3 mb-2">
+        <div class="mb-6 w-full px-3 md:mb-0">
+          <label
+            class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+            for="square"
+          >
+            Enter the root
+          </label>
+          <input
+            class="block w-full appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+            id="root"
+            type="number"
+            placeholder="Enter root answer"
+            name="root"
+          />
+        </div>
+        <!-- <div class="mb-6 w-full px-3 md:mb-0">
+            <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700" for="grid-state">
+              Email
+            </label>
+          </div> -->
+        <button
+          type="submit"
+          class="ml-2 mt-5 rounded bg-red-500 px-2 py-2 font-bold text-white hover:bg-blue-700"
+        >
+          Unlock bounty
+        </button>
+      </div>
+    </form>
+    {#if form?.unlock}
+      <!-- this message is ephemeral; it exists because the page was rendered in
+		   response to a form submission. it will vanish if the user reloads -->
+      <p class="pt-2 font-semibold text-green-600">
+        Bounty was unlocked successfully: <a
+          class="font-semibold text-indigo-500 underline"
+          target="_blank"
+          href={`https://whatsonchain.com/tx/${form?.txid}`}>Trasaction Link</a
+        >!
+      </p>
+    {:else if form?.unlock === false}
+      <p class="pt-2 font-semibold text-red-600">
+        {form?.txid}
+      </p>
+    {/if}
+  </div>
 </div>
