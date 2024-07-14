@@ -1,115 +1,75 @@
-// import { error } from '@sveltejs/kit';
-import { createPool, sql } from '@vercel/postgres'
-import { POSTGRES_URL } from '$env/static/private'
+import { db } from '$lib/database';
+import { fail, type Actions } from '@sveltejs/kit';
 
 export async function load() {
-  const db = createPool({ connectionString: POSTGRES_URL })
-
   try {
-    const { rows: names } = await db.query('SELECT * FROM names')
+    const users = await db.user.findMany();
     return {
-      names: names,
-    }
+      names: users,
+    };
   } catch (error) {
-      console.log(
-        'Table does not exist, creating and seeding it with dummy data now...'
-      )
-      // Table is not created yet
-      await seed()
-      const { rows: names } = await db.query('SELECT * FROM names')
-      return {
-        names: names
-      }
-    } 
-}
-
-async function seed() {
-  const db = createPool({ connectionString: POSTGRES_URL })
-  const client = await db.connect();
-  const createTable = await client.sql`CREATE TABLE IF NOT EXISTS names (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
-      "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-    );
-    `
-
-  console.log(`Created "users" table`)
-
-  const users = await Promise.all([
-    client.sql`
-          INSERT INTO names (name, email)
-          VALUES ('Rohan', 'rohan@tcl.com')
-          ON CONFLICT (email) DO NOTHING;
-      `,
-    client.sql`
-          INSERT INTO names (name, email, image)
-          VALUES ('Rebecca', 'rebecca@tcl.com')
-          ON CONFLICT (email) DO NOTHING;
-      `,
-    client.sql`
-          INSERT INTO names (name, email, image)
-          VALUES ('Vivek', 'vivek@gmail.com')
-          ON CONFLICT (email) DO NOTHING;
-      `,
-  ])
-  console.log(`Seeded ${users.length} users`)
-
-  return {
-    createTable,
-    users,
+    console.error(error);
+    return;
   }
 }
 
-/** @type {import('./$types').Actions} */
-export const actions = {
-	
-  // update: async ({ request }) => {
-  //   const data = await request.formData();
-  //   const db = createPool({ connectionString: POSTGRES_URL })
-  //   const client = await db.connect();
+export const actions: Actions = {
+  updateUser: async ({ request }) => {
+    const formData = await request.formData();
+    const userEmail = formData.get('email') as string;
+    const userName = formData.get('name') as string;
+    const userId = Number(formData.get('id') || '');
 
-  //   const email = data.get('email');
-	// 	const name = data.get('name');
+    if (
+      typeof userEmail !== 'string' ||
+      typeof userName !== 'string' ||
+      isNaN(userId)
+    ) {
+      return fail(400, {
+        error: true,
+        message:
+          'Input validation failed. Ensure all fields are correctly formatted.',
+      });
+    }
 
-  //   const updateUser = await client.sql`
-  //   UPDATE names
-  //   SET email = ${email}, name = ${name}
-  //   WHERE     ;`
-	
-	// 	return { success: true };
-	// },
+    await db.user.update({
+      where: { id: userId },
+      data: { name: userName, email: userEmail },
+    });
+  },
 
-  delete: async ({ request }) => {
-    const data = await request.formData();
-    const db = createPool({ connectionString: POSTGRES_URL })
-    const client = await db.connect();
+  deleteUser: async ({ request }) => {
+    const formData = await request.formData();
+    const userId = Number(formData.get('id') || '');
 
-    const id = data.get('id');
+    const existingUser = await db.user.findFirst({ where: { id: userId } });
+    if (!existingUser) {
+      return fail(400, {
+        error: true,
+        message: 'User not found. Cannot perform deletion.',
+      });
+    }
 
-    const deleteUser = await client.sql`
-    DELETE FROM names
-    WHERE id = ${id};`
-	
-		return { success: true };
-	},
-
-	create: async ({request}) => {
-		const data = await request.formData();
-    const db = createPool({ connectionString: POSTGRES_URL })
-    const client = await db.connect();
-
-    const email = data.get('email');
-		const name = data.get('name');
-
-    const createUser = await client.sql`
-      INSERT INTO names (name, email)
-      VALUES (${name}, ${email})
-      ON CONFLICT (email) DO NOTHING;
-    `
+    await db.user.delete({ where: { id: userId } });
     return { success: true };
-	}
+  },
+
+  createUser: async ({ request }) => {
+    const formData = await request.formData();
+    const userEmail = String(formData.get('email') || '');
+    const userName = String(formData.get('name') || '');
+
+    const userExists = await db.user.findUnique({
+      where: { email: userEmail },
+    });
+    if (userExists) {
+      return fail(400, {
+        error: true,
+        message: 'User already exists. Choose a different username or email.',
+      });
+    }
+
+    await db.user.create({ data: { email: userEmail, name: userName } });
+    return { success: true };
+  },
 };
-
-
-
